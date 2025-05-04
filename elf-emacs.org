@@ -54,8 +54,6 @@
 #+end_src
 ** Шрифты
 #+begin_src emacs-lisp
-  ;; Шрифты
-  ;;(set-face-attribute 'default nil :height 140)
   (when (member fonts-name (font-family-list))
     (set-face-attribute 'default nil :height fonts-size :font fonts-name))
 #+end_src
@@ -77,19 +75,6 @@
   (setq-default use-short-answers t)
 #+end_src
 
-** Scratch настройка
-#+begin_src emacs-lisp
- 
-#+end_src
-
-** Увеличьте отступы между рамками и окнами Emacs
-#+begin_src emacs-lisp
-  (use-package spacious-padding
-  :custom
-  (line-spacing 3)
-  (spacious-padding-mode 1))
-#+end_src
-
 ** оформление темы
 #+begin_src emacs-lisp
   (use-package modus-themes
@@ -109,6 +94,87 @@
   (ef-themes-select-light theme-name-light)
 #+end_src
 
+** icons
+#+begin_src emacs-lisp
+  (use-package nerd-icons
+    :if (display-graphic-p))
+#+end_src
+** mode -line
+:PROPERTIES:
+:ID:       6943b90c-6879-4380-970f-83943a641d5f
+:END:
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+    :config
+    (setq doom-modeline-height 15)
+    (setq doom-modeline-bar-width 4)
+    (setq doom-modeline-window-width-limit 85)
+    (setq doom-modeline-icon t)
+    (setq doom-modeline-major-mode-icon t)
+    (setq doom-modeline-major-mode-color-icon t)
+    (setq doom-modeline-buffer-state-icon t)
+    (setq doom-modeline-buffer-modification-icon t)
+    (setq doom-modeline-lsp-icon t)
+    (setq doom-modeline-time-icon t)
+    (setq doom-modeline-time-live-icon t)
+    (doom-modeline-mode 1)
+    )
+
+  (use-package hide-mode-line
+    :bind ("C-c m" . hide-mode-line-mode)
+    :config
+    (add-hook 'neotree-mode-hook #'hide-mode-line-mode)
+    (add-hook 'treemacs-mode-hook #'hide-mode-line-mode)
+    (hide-mode-line-mode nil)
+    )
+  (hide-mode-line-mode nil)
+#+end_src
+** Закрытие парных скобок
+#+begin_src emacs-lisp
+  (use-package smartparens
+    :config
+    (add-hook 'prog-mode-hook 'smartparens-mode))
+#+end_src
+** Скобок разным цветом
+#+begin_src emacs-lisp
+  (use-package rainbow-delimiters
+    :config
+    (rainbow-delimiters-mode t)
+    (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+    )
+       #+end_src
+** hl-todo
+#+begin_src emacs-lisp
+  (use-package hl-todo
+    :config (add-hook 'prog-mode-hook 'hl-todo-mode))
+#+end_src
+** Выделяем редактируемый текст
+#+begin_src emacs-lisp
+  ;;(use-package focus
+  ;;    :config
+  ;;(add-hook 'prog-mode-hook 'focus-mode)
+  ;;(add-hook 'text-mode-hook 'focus-mode)
+  ;;)
+#+end_src
+** Показать отступа
+#+begin_src emacs-lisp
+  (use-package indent-guide
+    :config (add-hook 'prog-mode-hook 'indent-guide-mode))
+#+end_src
+** yasnippet
+#+begin_src emacs-lisp
+  (use-package yasnippet
+   :ensure t
+   :init
+   (yas-global-mode t) ;; activate yasnippet
+   (setq yas-snippet-dir "~/.emacs.d/snippets"))
+#+end_src
+** run code
+#+begin_src emacs-lisp
+  (use-package quickrun
+    :bind ("<f9>" . quickrun)
+    )
+#+end_src
 ** Mixed-pitch mode
 #+begin_src emacs-lisp
   (use-package mixed-pitch
@@ -619,48 +685,8 @@
         ("C-<left>"  . image-dired-display-previous)))
 
 #+end_src
-** org-babel
-#+begin_src emacs-lisp
-  ;; GraphViz for flow diagrams
-;; requires GraphViz software
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((dot . t)))
-#+end_src
-** org-roam
-#+begin_src emacs-lisp
-    (use-package org-roam
-      :after org
-      :init
-      (setq org-roam-directory my-org-roam-directory
-    	org-roam-dailies-directory my-org-roam-dailies-directory)
-      (setq org-roam-dailies-capture-templates
-        '(("d" "default" entry
-           "* %?"
-           :target (file+head "%<%Y-%m-%d>.org"
-                              "#+title: %<%Y-%m-%d>\n")))
-     
-        )
-     (setq org-roam-capture-templates
-        '(("p" "Проекты" plain "%?"
-           :if-new
-           (file+head "1-Projects/${title}.org" "#+title: ${title}\n#+filetags: :projects:\n")
-           :immediate-finish t
-           :unnarrowed t)
-          ("a" "Облости" plain "%?"
-           :if-new
-            (file+head "2-Areas/${title}.org" "#+title: ${title}\n#+filetags: :areas:\n")
-           :immediate-finish t
-           :unnarrowed t)
-          ("r" "Ресурсы" plain "%?"
-           :if-new
-           (file+head "3-Resources/${title}.org" "#+title: ${title}\n#+filetags: :resources:\n")
-           :immediate-finish t
-           :unnarrowed t)
+** pdf tools
 
-  	))
-     )
-#+end_src
 ** neotree
 #+begin_src emacs-lisp
   (use-package treemacs
@@ -817,50 +843,168 @@
            :map minibuffer-local-map
            ("C-r" . consult-history)))
 #+end_src
-** Company
+** Complite
 #+begin_src emacs-lisp
   (use-package company
-    :ensure t
-    :hook ((prog-mode . company-mode))
-    :bind (:map company-active-map
-                ("<return>" . nil)
-                ("RET" . nil)
-                ("C-<return>" . company-complete-selection)
-                ([tab] . company-complete-selection)
-                ("TAB" . company-complete-selection))
+    
     :config
-    (setq company-idle-delay 0.3)
+    ;; No delay in showing suggestions.
+    (setq company-idle-delay 1)
+    ;; Show suggestions after entering one character.
+    (setq company-minimum-prefix-length 1)
+    (setq company-selection-wrap-around nil)
+    (company-tng-configure-default)
+
     (global-company-mode 1)
-  )
 
-  (use-package company-box
-    :ensure t
-    :hook (company-mode . company-box-mode))
+    (global-set-key (kbd "C-<tab>") 'company-complete))
+#+end_src
+** centaur-tabs
+#+begin_src emacs-lisp
+    (use-package centaur-tabs
+    :demand
+    :config
+    (centaur-tabs-mode t)
+    (setq centaur-tabs-height 24)
+    (setq centaur-tabs-set-icons t)
+    (setq centaur-tabs-icon-type 'all-the-icons)
+    (setq centaur-tabs-set-bar 'under)
+    (setq x-underline-at-descent-line t)
+    :bind
+    ("C-<prior>" . centaur-tabs-backward)
+    ("C-<next>" . centaur-tabs-forward))
+#+end_src
+** lisp
+#+begin_src emacs-lisp
+  ;;(load (expand-file-name "~/.roswell/helper.el"))
+  (use-package sly
+    :config
+    (require 'sly-autoloads)
+   
+      (setq inferior-lisp-program "ros -Q run"))
+      
+#+end_src
+** org-babel
+#+begin_src emacs-lisp
+  ;; GraphViz for flow diagrams
+;; requires GraphViz software
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((dot . t)))
+#+end_src
+** denote
+#+begin_src emacs-lisp
+ (use-package denote
+	:ensure t
+    :config
+    ;;
+    ;; General key bindings
+    (setq denote-directory notes-directory)
+    (setq denote-known-keywords '("emacs" "project"))
+    (setq denote-infer-keywords t)
+    (setq denote-sort-keywords t)
+    ;;
+    ;; Tweaking the frontmatter
+    (setq denote-org-front-matter
+          "#+title: %s\n#+date: %s\n#+filetags: %s\n#+identifier: %s\n#+author:\n#+startup: content\n")
+    :bind
+   ;; ("C-c n o" . denote-open-or-create)
+   ;; ("C-c n l" . denote-link-or-create)
+   ;; ("C-c n b" . denote-link-find-file)
+   ;; ("C-c n B" . denote-link-backlinks)
+)
+#+end_src
 
+https://protesilaos.com/emacs/denote-journal
+#+begin_src emacs-lisp
+  (use-package denote-journal
+  :ensure t
+  ;; Bind those to some key for your convenience.
+  :commands ( denote-journal-new-entry
+              denote-journal-new-or-existing-entry
+              denote-journal-link-or-create-entry )
+  :hook (calendar-mode . denote-journal-calendar-mode)
+  :config
+  ;; Use the "journal" subdirectory of the `denote-directory'.  Set this
+  ;; to nil to use the `denote-directory' instead.
+  (setq denote-journal-directory
+        (expand-file-name "journal" denote-directory))
+  ;; Default keyword for new journal entries. It can also be a list of
+  ;; strings.
+  (setq denote-journal-keyword "journal")
+  ;; Read the doc string of `denote-journal-title-format'.
+  (setq denote-journal-title-format 'day-date-month-year))
+#+end_src
 
-   #+end_src
+https://github.com/emacs-straight/denote-menu
+#+begin_src emacs-lisp
+  (use-package denote-menu
+    ;;(global-set-key (kbd "C-c z") #'list-denotes)
+
+    ;;(define-key denote-menu-mode-map (kbd "c") #'denote-menu-clear-filters)
+    ;;(define-key denote-menu-mode-map (kbd "/ r") #'denote-menu-filter)
+    ;;(define-key denote-menu-mode-map (kbd "/ k") #'denote-menu-filter-by-keyword)
+    ;;(define-key denote-menu-mode-map (kbd "/ o") #'denote-menu-filter-out-keyword)
+    ;;(define-key denote-menu-mode-map (kbd "e") #'denote-menu-export-to-dired)
+      )
+#+end_src
+
+https://protesilaos.com/emacs/denote-sequence
+#+begin_src emacs-lisp
+    (use-package  denote-sequence
+      :config (setq denote-sequence-scheme 'alphanumeric))
+#+end_src
+
+https://protesilaos.com/emacs/denote-silo
+#+begin_src emacs-lisp
+  (use-package  denote-silo
+    :commands ( denote-silo-create-note
+                denote-silo-open-or-create
+                denote-silo-select-silo-then-command
+                denote-silo-dired
+                denote-silo-cd )
+    :config
+    )
+#+end_src
+** consult
+#+begin_src emacs-lisp
+    (use-package consult
+  	:ensure t
+      :hook (completion-list-mode . consult-preview-at-point-mode)
+      :init
+      (setq register-preview-delay 0.3
+            register-preview-function #'consult-register-format)
+
+      (advice-add #'register-preview :override #'consult-register-window)
+
+      (setq xref-show-xrefs-function #'consult-xref
+            xref-show-definitions-function #'consult-xref)
+      )
+#+end_src
 ** Меню
 #+begin_src emacs-lisp
-    (use-package major-mode-hydra
-    :ensure t
-    :bind
-    ("C-c n" . major-mode-hydras/menu-main/body)
-    ;;("C-c n a" . major-mode-hydra)
-    )
+  (use-package major-mode-hydra :ensure t)
 #+end_src
 *** main menu
 #+begin_src emacs-lisp
-  (major-mode-hydra-define menu-main nil
-  ("File"
-   (("q" nil "Закрыть меню")
-    )
-   "Notes"
-   (("n" eval-buffer "Заметки")
-    ("e" eval-defun "defun")
-    ("r" eval-region "region"))
-   
-  ))
+      (major-mode-hydra-define menu-main nil
+      ;; 
+      ("Файлы"
+       (("c" (find-file "~/YandexDisk/Homes/Settings/emacs/elf-emacs.org" "► Открыть файл настроек ◄") "► Файл настроек ◄")
+        ("q" nil "► Закрыть меню  ◄"))
+       "Заметки"
+       (("n" denote-open-or-create "► Создать новую               ◄")
+        ("l" denote-link-or-create "► Создать ссылку              ◄")
+        ("b" denote-link-find-file "► Создать ссылку и найти файл ◄")
+        ("B" denote-link-backlinks "► Обратная ссылка             ◄"))
+       ))
+#+end_src
+*** key master menu
+#+begin_src emacs-lisp  
+  (global-set-key (kbd "C-c n") #'major-mode-hydras/menu-main/body)   
+#+end_src
 
-  (global-set-key (kbd "C-n") #'major-mode-hydras/menu-main/body)
-   
+** tmp
+#+begin_src emacs-lisp
+ 
 #+end_src
